@@ -37,6 +37,18 @@ const AccountSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  email: {
+    type: String,
+    required: true,
+    trim: true,
+    unique: true,
+    validate: {
+      validator(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      },
+      message: 'Invalid email address format',
+    },
+  },
 });
 
 // Converts a doc to something we can store in redis later on.
@@ -72,5 +84,16 @@ AccountSchema.statics.authenticate = async (username, password, callback) => {
   }
 };
 
+AccountSchema.statics.changePasswordAuthenticate = async (email, password, callback) => {
+  try {
+    const doc = await AccountModel.findOne({ email }).exec();
+    if (!doc) {
+      return callback();
+    }
+    return callback();
+  } catch (err) {
+    return callback(err);
+  }
+};
 AccountModel = mongoose.model('Account', AccountSchema);
 module.exports = AccountModel;

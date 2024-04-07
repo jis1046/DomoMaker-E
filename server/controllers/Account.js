@@ -29,12 +29,47 @@ const login = (req, res) => {
   });
 };
 
+const passwordChange = async (req, res) => {
+  const { email } = req.body;
+  const newPass = req.body.pass;
+  const newPass2 = req.body.pass2;
+
+  if (!email || !newPass || !newPass2) {
+    return res.status(400).json({ error: 'All fields are required!' });
+  }
+
+  try {
+    const account = await Account.changePasswordAuthenticate(email);
+
+    if (!account) {
+      return res.status(401).json({ error: 'Incorrect email!' });
+    }
+
+    if (newPass !== newPass2) {
+      return res.status(400).json({ error: 'Passwords do not match!' });
+    }
+
+    const hash = await Account.generateHash(newPass);
+
+    // Update password with hashed value
+    account.password = hash;
+
+    req.session.account = Account.toAPI(account);
+
+    return res.json({ redirect: '/login' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    return res.status(500).json({ error: 'Internal server error!' });
+  }
+};
+
 const signup = async (req, res) => {
   const username = `${req.body.username}`;
   const pass = `${req.body.pass}`;
   const pass2 = `${req.body.pass2}`;
+  const email = `${req.body.email}`;
 
-  if (!username || !pass || !pass2) {
+  if (!username || !pass || !pass2 || !email) {
     return res.status(400).json({ error: 'All fields are required!' });
   }
 
@@ -44,7 +79,12 @@ const signup = async (req, res) => {
 
   try {
     const hash = await Account.generateHash(pass);
-    const newAccount = new Account({ username, password: hash });
+    const newAccount = new Account({ username, password: hash, email });
+
+    const error = newAccount.validateSync();
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
     await newAccount.save();
     req.session.account = Account.toAPI(newAccount);
     return res.json({ redirect: '/maker' });
@@ -53,6 +93,7 @@ const signup = async (req, res) => {
     if (err.code === 11000) {
       return res.status(400).json({ error: 'Username already in use!' });
     }
+
     return res.status(500).json({ error: 'An error occured!' });
   }
 };
@@ -63,4 +104,5 @@ module.exports = {
   logout,
   login,
   signup,
+  passwordChange,
 };
