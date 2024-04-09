@@ -82,7 +82,13 @@ const LoginWindow = (props) => {
         <label htmlFor="pass">Password: </label>
         <input id="pass" type="password" name="pass" placeholder="password" />
         <input className="formSubmit" type="submit" value="Sign in" /> 
-        <input id="changePasswordSubmit" type="button" value="Change Password" /> 
+        <input id="changePasswordSubmit" type="button" value="Change Password" onClick={
+            (e) => {
+                e.preventDefault();
+                props.root.render( <ChangePasswordWindow /> );
+                return false;
+            }
+        } /> 
     </form>
 
     );
@@ -125,7 +131,7 @@ const ChangePasswordWindow = (props) => {
         <input id="pass" type="password" name="pass" placeholder="password" />
         <label htmlFor="pass">Password: </label>
         <input id="pass2" type="password" name="pass2" placeholder=" retype password" />
-        <input className="formSubmit" type="submit" value="Password changed" />
+        <input className="formSubmit" type="submit" value="Enter" />
         </form>
 
         
@@ -135,13 +141,12 @@ const ChangePasswordWindow = (props) => {
 const init = () => {
     const loginButton = document.getElementById('loginButton');
     const signupButton = document.getElementById('signupButton');
-    const changePasswordButton = document.getElementById('changePasswordSubmit');
 
     const root = createRoot(document.getElementById('content'));
 
     loginButton.addEventListener('click', (e) => {
         e.preventDefault();
-        root.render( <LoginWindow /> );
+        root.render( <LoginWindow root={root}/> );
         return false;
     });
 
@@ -151,14 +156,10 @@ const init = () => {
         return false;
     });
 
-    changePasswordButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        root.render( <ChangePasswordWindow /> );
-        return false;
-    });
+  
     
 
-    root.render( <LoginWindow /> );
+    root.render( <LoginWindow  root={root}/> );
 };
 
 window.onload = init;
