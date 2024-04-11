@@ -54,9 +54,12 @@ const passwordChange = async (req, res) => {
     // Update password with hashed value
     account.password = hash;
 
+    //Save the updated password
+    await account.save();
+
     req.session.account = Account.toAPI(account);
 
-    return res.json({ redirect: '/login' });
+    return res.json({ redirect: '/' });
   } catch (error) {
     console.error('Error changing password:', error);
     return res.status(500).json({ error: 'Internal server error!' });
