@@ -54,7 +54,7 @@ const passwordChange = async (req, res) => {
     // Update password with hashed value
     account.password = hash;
 
-    //Save the updated password
+    // Save the updated password
     await account.save();
 
     req.session.account = Account.toAPI(account);

@@ -85,12 +85,8 @@ AccountSchema.statics.authenticate = async (username, password, callback) => {
 };
 
 AccountSchema.statics.changePasswordAuthenticate = async (email) => {
-  try {
-    const doc = await AccountModel.findOne({ email }).exec();
-    return doc;
-  } catch (err) {
-    throw err;
-  }
+  const doc = await AccountModel.findOne({ email }).exec();
+  return doc;
 };
 
 AccountModel = mongoose.model('Account', AccountSchema);
